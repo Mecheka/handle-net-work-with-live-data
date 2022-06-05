@@ -3,6 +3,7 @@ package com.example.handlenet
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.handlenet.databinding.ActivityMainBinding
 import com.karumi.dexter.Dexter
@@ -21,15 +22,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+//        handleInternetState()
         Dexter.withContext(this)
             .withPermissions(
-                Manifest.permission.CHANGE_NETWORK_STATE,
-                Manifest.permission.ACCESS_NETWORK_STATE
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
             )
             .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(p0: MultiplePermissionsReport?) {
-                    handleInternetState()
+                    if (p0?.areAllPermissionsGranted() == true) {
+                        handleInternetState()
+                    }
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
@@ -39,7 +42,12 @@ class MainActivity : AppCompatActivity() {
                     p1?.continuePermissionRequest()
                 }
 
-            }).check()
+            })
+            .withErrorListener {
+                Log.d("error", it.name)
+            }
+            .onSameThread()
+            .check()
 
     }
 
