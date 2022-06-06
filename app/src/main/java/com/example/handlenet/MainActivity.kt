@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-//        handleInternetState()
         Dexter.withContext(this)
             .withPermissions(
                 Manifest.permission.ACCESS_NETWORK_STATE,
