@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity() {
             .withPermissions(
                 Manifest.permission.ACCESS_NETWORK_STATE,
                 Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
             )
             .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(p0: MultiplePermissionsReport?) {
@@ -55,10 +57,24 @@ class MainActivity : AppCompatActivity() {
         val netLiveData = HandleNetworkLiveData()
         netLiveData.init(this@MainActivity)
         netLiveData.observe(this@MainActivity) {
-            binding.netStatus.text = "Is internet connect ${it.isConnect}"
-            binding.isCellular.text = "Is connect cellular ${it.isCellular}"
-            binding.carrierId.text = "Carrier id ${it.carrierId.orEmpty()}"
-            binding.carrierName.text = "Carrier name ${it.carrierName.orEmpty()}"
+            when (it) {
+                is Cellular -> {
+                    binding.netStatus.text = "Is internet connect ${it.isConnect}"
+                    binding.isCellular.text = "Is connect cellular ${it.isCellular}"
+                    binding.carrierId.text = "Carrier id ${it.carrierId.orEmpty()}"
+                    binding.carrierName.text = "Carrier name ${it.carrierName.orEmpty()}"
+                }
+                is Wifi -> {
+                    binding.netStatus.text = "Is internet connect ${it.isConnect}"
+                    binding.isCellular.text = "Is connect cellular ${it.isCellular}"
+                    binding.carrierId.text = "Brand ${it.brand.orEmpty()}"
+                    binding.carrierName.text = "Operator ${it.operator.orEmpty()}"
+                }
+                NotConnected -> {
+                    binding.netStatus.text = "Is internet connect false"
+                    binding.isCellular.text = "Is connect cellular false"
+                }
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.util.Log
@@ -39,18 +40,18 @@ class HandleNetworkLiveData : LiveData<MyNetworkState>() {
             if (isCellular) {
                 getMccMnc()
             } else {
-                postValue(MyNetworkState(isConnect = true, isCellular = isCellular))
+                getWifiInfo()
             }
         }
 
         override fun onUnavailable() {
             super.onUnavailable()
-            postValue(MyNetworkState(isConnect = false, isCellular = false))
+            postValue(NotConnected)
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
-            postValue(MyNetworkState(isConnect = false, isCellular = false))
+            postValue(NotConnected)
         }
     }
 
@@ -69,11 +70,28 @@ class HandleNetworkLiveData : LiveData<MyNetworkState>() {
             _context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         Log.d("Log", "Something")
         postValue(
-            MyNetworkState(
+            Cellular(
                 isConnect = true, isCellular = true,
                 carrierId = telephonyManager.networkOperator,
                 carrierName = telephonyManager.networkOperatorName
             )
         )
+    }
+
+    private fun getWifiInfo() {
+        val wifi = _context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val info = wifi.connectionInfo
+        postValue(
+            Wifi(
+                isConnect = true,
+                isCellular = false,
+                brand = info.bssid,
+                operator = info.ssid
+            )
+        )
+    }
+
+    companion object {
+        private const val TAG_WIFI_INFO = "Wifi info ==>"
     }
 }
